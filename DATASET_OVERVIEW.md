@@ -166,9 +166,18 @@ U_normalized = (U_total - U_no_predictions) / (U_optimal - U_no_predictions)
 
 ---
 
+## Nguồn dữ liệu
+
+Dataset được đóng gói sẵn trên Kaggle: **https://www.kaggle.com/datasets/nguyenhoangthaotrinh/sepsyd-data**
+
+Tải trực tiếp qua Kaggle API:
+```bash
+kaggle datasets download -d nguyenhoangthaotrinh/sepsyd-data -p data/raw --unzip
+```
+
 ## Cấu trúc thư mục Local
 
-Chạy `python scripts/setup_data.py` từ thư mục gốc project để tự tải dữ liệu (xem `docs/reproduce_sepsis_baseline.ipynb`). Cấu trúc sau khi tải xong:
+Cấu trúc sau khi tải xong:
 
 ```
 data/
