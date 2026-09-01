@@ -37,7 +37,7 @@ DAG tạo lại train/test split theo patient ở mỗi lần retrain và lưu s
 ### Chạy kiểm thử
 
 ```bash
-python -m pip install -r requirements-dev.txt
+python -m pip install -r requirements.txt
 pytest
 ```
 
