@@ -1,0 +1,65 @@
+pipeline:
+  schedule: "0 2 1 * *"
+  max_active_runs: 1
+  retries: 1
+
+data:
+  raw_dir: "data/raw"
+  incoming_dir: "data/incoming"
+  bronze_dir: "data/bronze"
+  silver_dir: "data/silver"
+  gold_dir: "data/gold"
+  quarantine_dir: "data/quarantine"
+  registry_dir: "data/registry"
+
+train_test_split:
+  test_size: 0.2
+
+preprocessing:
+  skew_threshold: 1.0
+  freeze_log_columns_after_bootstrap: true
+  impute_columns: ["HR", "O2Sat", "Temp"]
+  remaining_missing_policy: "fold_train_mean_then_zero"
+
+features:
+  feature_set: "cleaning_all_features_h5_v1"
+  columns: ["HR", "O2Sat", "Temp", "SBP", "Resp"]
+  moving_window_hours: 6
+  delta_lag_hours: 1
+  lookback_hours: 5
+  lookback_padding: 0.0
+
+cross_validation:
+  search_n_splits: 3
+  finalization_n_splits: 10
+  selection_metric: "auprc"
+  tie_break_metric: "utility"
+  random_state: 42
+  num_boost_round: 200
+  early_stopping_rounds: 20
+  candidates:
+    - {max_depth: 4, eta: 0.1}
+    - {max_depth: 3, eta: 0.1}
+    - {max_depth: 4, eta: 0.05}
+
+model:
+  type: "xgboost_booster"
+  objective: "weighted_logloss"
+  positive_weight: 40.0
+  tree_method: "hist"
+  baseline_max_depth: 4
+  baseline_learning_rate: 0.1
+
+threshold:
+  start: 0.05
+  stop: 0.95
+  step: 0.05
+  selection_metric: "utility"
+
+model_registry:
+  root_dir: "artifacts/models"
+  current_model_file: "artifacts/models/current_model.json"
+  runs_dir: "artifacts/runs"
+
+logging:
+  history_file: "logs/retraining_history.jsonl"
