@@ -2,6 +2,7 @@ numpy
 pandas
 scikit-learn
 xgboost
+lightgbm
 requests
 matplotlib
 apache-airflow>=3.2,<3.3
