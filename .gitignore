@@ -1,6 +1,24 @@
-.claude/
-.mcp.json
-skills-lock.json
-CLAUDE.md
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.airflow/
+.airflow3/
 
-.agents
+# Local data and generated artifacts
+data/raw/**
+data/incoming/**
+data/bronze/**
+data/silver/**
+data/gold/**
+data/quarantine/**
+data/registry/**
+artifacts/models/**
+artifacts/runs/**
+logs/*.jsonl
+
+# Keep directory instructions/placeholders
+!**/.gitkeep
+!data/raw/README.md
+!data/incoming/README.md
+!artifacts/models/README.md

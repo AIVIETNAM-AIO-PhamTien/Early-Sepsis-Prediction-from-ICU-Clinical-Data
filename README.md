@@ -21,3 +21,24 @@ Xem chi tiết mô tả features, format file, và cách chấm điểm utility 
 ## Trạng thái hiện tại
 
 Đã có nguồn dữ liệu training trên Kaggle — đang chạy `reproduce/reproduce_sepsis_baseline.ipynb` để reproduce baseline.
+
+## Airflow retraining
+
+Khung retraining production nằm trong `src/pipelines/`, DAG tại `dags/sepsis_retraining_dag.py` và cấu hình tại `configs/retraining.yaml`.
+
+Chuẩn bị asset trước khi chạy:
+
+1. Đặt toàn bộ file `.psv` trực tiếp vào `data/raw/`.
+2. Đặt batch mới cần retrain vào `data/incoming/`.
+3. Cài dependency bằng `pip install -r requirements.txt`, cấu hình `PYTHONPATH` trỏ tới project root rồi khởi động Airflow.
+
+DAG tạo lại train/test split theo patient ở mỗi lần retrain và lưu split metadata trong thư mục run. Sau mỗi lần retrain thành công, candidate được đăng ký và luôn thay thế model hiện tại trong `current_model.json`, không qua bước so sánh performance với model cũ.
+
+### Chạy kiểm thử
+
+```bash
+python -m pip install -r requirements.txt
+pytest
+```
+
+Test suite kiểm tra DAG import/topology trên Airflow 3, batch detection và Bronze ingestion, data quality gate, lookback theo từng bệnh nhân, performance gate, dataset registry và model promotion. Test không chạy huấn luyện XGBoost hoàn chỉnh nên có thể chạy nhanh trong quá trình phát triển.
