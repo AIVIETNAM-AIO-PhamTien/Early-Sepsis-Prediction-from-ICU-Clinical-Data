@@ -1,6 +1,8 @@
-numpy
+numpy<2
 pandas
 scikit-learn
-xgboost
+xgboost==0.90
 requests
 matplotlib
+streamlit
+pytest

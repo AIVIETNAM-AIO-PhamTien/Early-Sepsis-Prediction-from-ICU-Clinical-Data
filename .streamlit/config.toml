@@ -1,0 +1,60 @@
+# Clinical decision-support theme — clean, readable, trustworthy
+
+[theme]
+base = "light"
+primaryColor = "#0B6E99"
+backgroundColor = "#F8FAFB"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1A2B3C"
+linkColor = "#0B6E99"
+borderColor = "#D4E2EA"
+codeBackgroundColor = "#EEF4F7"
+codeTextColor = "#1A2B3C"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "8px"
+buttonRadius = "8px"
+
+font = "'Source Sans 3':https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap"
+headingFont = "'Source Sans 3':https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@600;700&display=swap"
+codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+baseFontSize = 15
+headingFontSizes = ["30px", "24px", "20px", "17px", "15px", "13px"]
+
+greenColor = "#1B7F4B"
+redColor = "#C62828"
+orangeColor = "#D97706"
+yellowColor = "#CA8A04"
+blueColor = "#0B6E99"
+violetColor = "#5B4FCF"
+grayColor = "#5C6B7A"
+
+chartCategoricalColors = [
+    "#0B6E99",
+    "#1B7F4B",
+    "#C62828",
+    "#D97706",
+    "#5B4FCF",
+    "#5C6B7A",
+]
+
+chartSequentialColors = [
+    "#E8F4F8",
+    "#C5E4EF",
+    "#8FC9DF",
+    "#5AADCC",
+    "#2E91B8",
+    "#0B6E99",
+    "#085A7D",
+    "#054661",
+]
+
+dataframeBorderColor = "#D4E2EA"
+dataframeHeaderBackgroundColor = "#EEF4F7"
+
+[theme.sidebar]
+backgroundColor = "#0A3D5C"
+secondaryBackgroundColor = "#0F4F73"
+textColor = "#F0F7FB"
+primaryColor = "#4FC3F7"
+borderColor = "#1A5F82"

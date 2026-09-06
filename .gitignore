@@ -1,6 +1,30 @@
+.venv
+.streamlit/secrets.toml
+
+__pycache__/
+*.pyc
+
 .claude/
 .mcp.json
 skills-lock.json
 CLAUDE.md
 
 .agents
+
+# Full dataset — keep only committed sample files under data/raw/
+data/raw/**/*
+!data/raw/training_setA/
+!data/raw/training_setA/p000001.psv
+!data/raw/training_setA/p000003.psv
+!data/raw/training_setB/
+!data/raw/training_setB/p100001.psv
+data/processed/
+data/bronze/
+data/silver/
+data/gold/
+
+# Original Sepsyd model (downloaded by scripts/bootstrap_artifacts.py)
+original/*.pickle.dat
+
+# Prediction logs (runtime)
+logs/predictions/*.jsonl
