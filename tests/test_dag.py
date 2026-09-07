@@ -10,7 +10,7 @@ import pytest
 AIRFLOW_MAJOR = int(version("apache-airflow").split(".", maxsplit=1)[0])
 requires_airflow_3 = pytest.mark.skipif(
     AIRFLOW_MAJOR < 3,
-    reason="The DAG uses the Airflow 3 public SDK; install requirements-dev.txt to run this test",
+    reason="The DAG uses the Airflow 3 public SDK; install requirements.txt to run this test",
 )
 
 EXPECTED_TASKS = [
@@ -49,7 +49,9 @@ def retraining_dag():
     dag_folder = Path(__file__).resolve().parents[1] / "dags"
     dag_bag = DagBag(dag_folder=str(dag_folder), include_examples=False)
     assert dag_bag.import_errors == {}
-    dag = dag_bag.get_dag("sepsis_retraining")
+    # Access the parsed in-memory DAG directly. DagBag.get_dag() also queries
+    # the Airflow metadata DB, which makes this import test depend on migrations.
+    dag = dag_bag.dags.get("sepsis_retraining")
     assert dag is not None
     return dag
 

@@ -51,4 +51,6 @@ def test_model_registry_registers_and_promotes_complete_candidate(tmp_path) -> N
     assert payload["model_version"] == "model_v1"
     assert payload["dataset_version"] == "dataset_v1"
     assert payload["threshold"] == 0.4
-
+    assert payload["pipeline"] == "team_v1"
+    assert payload["model_format"] == "xgboost_json"
+    assert payload["model_path"].endswith("/model.json")

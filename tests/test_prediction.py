@@ -42,6 +42,7 @@ def test_e2e_prediction(sample_patient_df: pd.DataFrame):
     assert len(results) == len(sample_patient_df)
     assert (results["risk_score"] >= 0).all() and (results["risk_score"] <= 1).all()
     assert results["model_version"].iloc[0] == artifact.version
+    assert results["risk_score"].iloc[-1] == pytest.approx(0.3403175175)
 
 
 def test_artifact_missing_raises(tmp_path: Path):
