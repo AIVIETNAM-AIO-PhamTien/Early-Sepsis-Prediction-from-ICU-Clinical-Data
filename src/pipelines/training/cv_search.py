@@ -54,14 +54,14 @@ def run_group_cv(
             dtrain,
             num_boost_round=int(cv_config["num_boost_round"]),
             obj=make_weighted_logloss_objective(float(model_config["positive_weight"])),
-            feval=auprc_metric,
+            custom_metric=auprc_metric,
             maximize=True,
             evals=[(dvalid, "validation")],
             early_stopping_rounds=int(cv_config["early_stopping_rounds"]),
             verbose_eval=False,
         )
         best_iteration = int(booster.best_iteration)
-        margins = booster.predict(dvalid, ntree_limit=best_iteration + 1, output_margin=True)
+        margins = booster.predict(dvalid, iteration_range=(0, best_iteration + 1), output_margin=True)
         probabilities = sigmoid(margins).astype(np.float32)
         oof[valid_index] = probabilities
         best_iterations.append(best_iteration)

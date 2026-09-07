@@ -203,6 +203,7 @@ def sepsis_retraining():
             _path(CONFIG["model_registry"]["current_model_file"]),
             run["dataset_version"],
             run["threshold"],
+            pipeline="team_v1",
         )
         record = {
             "run_id": run["run_id"],

@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from src.pipelines.config import PROJECT_ROOT
+
 
 REQUIRED_ARTIFACTS = {
     "model.json",
-    "model.pkl",
     "preprocessor.json",
-    "preprocessor.pkl",
     "feature_config.json",
     "feature_schema.json",
     "threshold.json",
@@ -21,6 +21,14 @@ REQUIRED_ARTIFACTS = {
     "utility_config.json",
     "metadata.json",
 }
+
+
+def _manifest_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(PROJECT_ROOT.resolve()).as_posix()
+    except ValueError:
+        return str(resolved)
 
 
 def _validate_artifacts(path: Path) -> None:
@@ -60,10 +68,11 @@ def promote_model(
     payload = {
         "model_version": model_path.name,
         "dataset_version": dataset_version,
-        "model_path": str(model_path / "model.pkl"),
-        "preprocessor_path": str(model_path / "preprocessor.json"),
-        "feature_config_path": str(model_path / "feature_config.json"),
+        "model_path": _manifest_path(model_path / "model.json"),
+        "preprocessor_path": _manifest_path(model_path / "preprocessor.json"),
+        "feature_config_path": _manifest_path(model_path / "feature_config.json"),
         "pipeline": pipeline,
+        "model_format": "xgboost_json",
         "threshold": float(threshold),
         "status": "current",
         "updated_at": datetime.now(timezone.utc).isoformat(),
