@@ -41,7 +41,7 @@ def generate_and_cache_narrative(
         patient_id=patient_id,
         threshold=threshold,
         provider_name="auto",
-        language="vi",
+        language="en",
         gemini_api_key=gemini_key,
         groq_api_key=groq_key,
     )
@@ -67,14 +67,14 @@ def render_narrative_panel(
     )
 
     if needs_generate:
-        with st.spinner("Đang tạo tường thuật tình trạng bệnh nhân..."):
+        with st.spinner("Generating patient narrative..."):
             try:
                 generate_and_cache_narrative(
                     results, patient_id=patient_id, threshold=threshold
                 )
             except NarrativeError as exc:
                 st.warning(
-                    f"Không tạo được tường thuật: {exc}",
+                    f"Could not generate narrative: {exc}",
                     icon=":material/warning:",
                 )
                 return
@@ -83,10 +83,10 @@ def render_narrative_panel(
     if not narrative:
         return
 
-    st.markdown("**Tường thuật tình trạng**")
+    st.markdown("**Clinical narrative**")
     st.info(narrative, icon=":material/clinical_notes:")
     used = st.session_state.get("narrative_provider", "unknown")
     st.caption(
-        f"Nguồn: `{used}` · Tự động từ kết quả dự đoán · "
-        "Chỉ hỗ trợ quyết định, không thay thế đánh giá lâm sàng."
+        f"Source: `{used}` · Auto-generated from prediction results · "
+        "Decision support only, not a substitute for clinical judgment."
     )

@@ -90,6 +90,18 @@ pages = {
             icon=":material/person_search:",
             default=True,
         ),
+        st.Page(
+            "pages/2_unit_watchlist.py",
+            title="Unit watchlist",
+            icon=":material/groups:",
+        ),
+    ],
+    "Operations": [
+        st.Page(
+            "pages/3_model_monitoring.py",
+            title="Model monitoring",
+            icon=":material/monitoring:",
+        ),
     ],
 }
 

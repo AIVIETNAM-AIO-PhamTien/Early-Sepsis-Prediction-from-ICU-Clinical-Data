@@ -54,3 +54,10 @@ def read_patient_file(path: Path | str) -> tuple[pd.DataFrame, str]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     return df, patient_id
+
+
+def read_patient_file_raw(path: Path | str) -> pd.DataFrame:
+    """Read a .psv or .csv file as-is (all columns, no coercion) for display only."""
+    path = Path(path)
+    delimiter = _delimiter_for_path(path)
+    return pd.read_csv(path, sep=delimiter)

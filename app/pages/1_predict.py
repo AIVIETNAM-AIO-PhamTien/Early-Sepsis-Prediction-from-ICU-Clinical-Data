@@ -32,13 +32,43 @@ st.caption(
     "Upload hourly ICU patient data to estimate sepsis onset risk across the ICU stay."
 )
 
+WORKFLOW_STEPS = [
+    (":material/upload_file:", "1. Load data"),
+    (":material/fact_check:", "2. Validate"),
+    (":material/play_circle:", "3. Predict"),
+    (":material/insights:", "4. Review"),
+]
+
+_last_df = st.session_state.get("last_df")
+_last_validation = st.session_state.get("last_validation")
+_last_results = st.session_state.get("last_results")
+
+_step_done = [
+    _last_df is not None,
+    _last_validation is not None and _last_validation.is_valid,
+    _last_results is not None,
+]
+_active_index = next((i for i, done in enumerate(_step_done) if not done), 3)
+_completed_count = sum(_step_done) + (1 if _active_index == 3 else 0)
+
 with st.container(border=True):
-    st.markdown("#### :material/route: Workflow")
+    header_col, badge_col = st.columns([3, 1], vertical_alignment="center")
+    header_col.markdown("### :material/route: Pipeline workflow")
+    badge_col.badge(
+        f"Step {min(_active_index + 1, 4)} of 4",
+        icon=":material/flag:",
+        color="blue",
+    )
+    st.progress(_completed_count / 4)
     step_cols = st.columns(4)
-    step_cols[0].markdown(":material/upload_file: **1. Load data**")
-    step_cols[1].markdown(":material/fact_check: **2. Validate**")
-    step_cols[2].markdown(":material/play_circle: **3. Predict**")
-    step_cols[3].markdown(":material/insights: **4. Review**")
+    for i, (icon, label) in enumerate(WORKFLOW_STEPS):
+        with step_cols[i]:
+            if i < _active_index:
+                st.badge(label, icon=":material/check_circle:", color="green")
+            elif i == _active_index:
+                st.badge(label, icon=icon, color="blue")
+            else:
+                st.badge(label, icon=icon, color="gray")
 
 with st.container(border=True):
     st.markdown("#### :material/upload_file: Step 1 · Patient data")
@@ -107,7 +137,7 @@ if run_clicked:
                 results=results,
                 status="success",
             )
-            with st.spinner("Đang tạo tường thuật tình trạng bệnh nhân..."):
+            with st.spinner("Generating patient narrative..."):
                 generate_and_cache_narrative(
                     results,
                     patient_id=st.session_state["last_patient_id"],

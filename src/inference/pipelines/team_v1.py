@@ -15,5 +15,5 @@ class TeamV1Pipeline(PredictionPipeline):
         artifact: ModelArtifact,
     ) -> pd.DataFrame:
         raise NotImplementedError(
-            "Pipeline team_v1 chưa sẵn sàng. Cần artifact v2 từ nhóm ML."
+            "The team_v1 pipeline is not ready yet. Requires the v2 artifact from the ML team."
         )

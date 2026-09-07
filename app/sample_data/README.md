@@ -1,28 +1,28 @@
 # Sample patient data
 
-Các file `.psv` mẫu phục vụ demo app Streamlit và test inference.
+Sample `.psv` files used for the Streamlit app demo and inference tests.
 
-| File | Set | Mô tả |
+| File | Set | Description |
 |---|---|---|
-| `p000001.psv` | A | Bệnh nhân không sepsis (~54 giờ ICU) |
-| `p000003.psv` | A | Bệnh nhân có `SepsisLabel=1` ở một số giờ |
-| `p100001.psv` | B | Bệnh nhân từ hospital system 2 (~24 giờ) |
+| `p000001.psv` | A | Non-sepsis patient (~54 ICU hours) |
+| `p000003.psv` | A | Patient with `SepsisLabel=1` at some hours |
+| `p100001.psv` | B | Patient from hospital system 2 (~24 hours) |
 
 ## Schema
 
-Mỗi file: **1 bệnh nhân**, **1 dòng = 1 giờ ICU**, delimiter `|`.
+Each file: **1 patient**, **1 row = 1 ICU hour**, delimiter `|`.
 
-41 cột: 40 biến lâm sàng + `SepsisLabel`. Xem chi tiết trong [`DATASET_OVERVIEW.md`](../../DATASET_OVERVIEW.md).
+41 columns: 40 clinical variables + `SepsisLabel`. See details in [`DATASET_OVERVIEW.md`](../../DATASET_OVERVIEW.md).
 
-`patient_id` = tên file (không có trong cột), ví dụ `p000001.psv` → `p000001`.
+`patient_id` = filename (not a column), e.g. `p000001.psv` → `p000001`.
 
-## Nguồn
+## Source
 
-Dataset đóng gói trên Kaggle: [sepsyd-data](https://www.kaggle.com/datasets/nguyenhoangthaotrinh/sepsyd-data) (PhysioNet/CinC Challenge 2019).
+Dataset packaged on Kaggle: [sepsyd-data](https://www.kaggle.com/datasets/nguyenhoangthaotrinh/sepsyd-data) (PhysioNet/CinC Challenge 2019).
 
-Các file mẫu trong repo được tải trực tiếp từ PhysioNet (cùng nguồn gốc với Kaggle dataset):
+The sample files in this repo were downloaded directly from PhysioNet (same origin as the Kaggle dataset):
 
 - Set A: `https://physionet.org/files/challenge-2019/1.0.0/training/training_setA/`
 - Set B: `https://physionet.org/files/challenge-2019/1.0.0/training/training_setB/`
 
-Để tải **toàn bộ** dataset qua Kaggle API, xem [`scripts/download_kaggle_data.ps1`](../../scripts/download_kaggle_data.ps1).
+To download the **full** dataset via the Kaggle API, see [`scripts/download_kaggle_data.ps1`](../../scripts/download_kaggle_data.ps1).

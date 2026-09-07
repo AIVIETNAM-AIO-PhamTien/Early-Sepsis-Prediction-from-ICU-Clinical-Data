@@ -6,18 +6,12 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+from app.components.bundle_checklist import render_bundle_checklist
 from app.components.narrative_panel import render_narrative_panel
+from src.inference.escalation import ESCALATION_TIERS, get_escalation_tier
 
 
-def _risk_label(score: float, threshold: float) -> tuple[str, str]:
-    if score >= threshold:
-        return "Elevated", "red"
-    if score >= threshold * 0.6:
-        return "Watch", "orange"
-    return "Low", "green"
-
-
-def _build_risk_chart(results: pd.DataFrame, threshold: float) -> alt.Chart:
+def build_risk_chart(results: pd.DataFrame, threshold: float) -> alt.Chart:
     plot_df = results[["ICULOS", "risk_score"]].copy()
     plot_df["risk_pct"] = plot_df["risk_score"] * 100
 
@@ -69,7 +63,7 @@ def render_results_view(
     max_score = float(results["risk_score"].max())
     n_positive = int((results["prediction"] == 1).sum())
     n_hours = len(results)
-    latest_label, latest_color = _risk_label(latest_score, threshold)
+    latest_tier = get_escalation_tier(latest_score, threshold)
 
     header = f"Patient **{patient_id}**" if patient_id else "Prediction summary"
     st.markdown(header)
@@ -103,9 +97,9 @@ def render_results_view(
     badge_col, note_col = st.columns([1, 3])
     with badge_col:
         st.badge(
-            f"Current status: {latest_label}",
-            icon=":material/monitor_heart:",
-            color=latest_color,
+            f"Current status: {latest_tier.name}",
+            icon=latest_tier.icon,
+            color=latest_tier.color,
         )
     with note_col:
         st.caption(
@@ -113,8 +107,21 @@ def render_results_view(
             "context, labs, and bedside assessment before action."
         )
 
+    with st.expander("Escalation policy", icon=":material/policy:"):
+        for tier in ESCALATION_TIERS:
+            current = " · **(current status)**" if tier.name == latest_tier.name else ""
+            target = f"within {tier.target_minutes} min" if tier.target_minutes else "no limit"
+            st.markdown(
+                f"- **{tier.name}**{current} — {tier.action} "
+                f"(responsible: {tier.responsible_role}, target: {target})"
+            )
+
     st.markdown("**Risk trajectory**")
-    st.altair_chart(_build_risk_chart(results, threshold))
+    st.altair_chart(build_risk_chart(results, threshold))
+
+    if latest_tier.name == "Elevated":
+        st.divider()
+        render_bundle_checklist(patient_id or "unknown")
 
     display_df = results[
         ["patient_id", "ICULOS", "risk_score", "prediction", "model_version"]
