@@ -3,19 +3,13 @@
 from __future__ import annotations
 
 import json
-import pickle
-import shutil
-import urllib.request
 from pathlib import Path
 
+import xgboost as xgb
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-ORIGINAL_MODEL = PROJECT_ROOT / "original" / "f120d4e02n8010val434.pickle.dat"
-MODEL_URL = (
-    "https://raw.githubusercontent.com/physionetchallenges/"
-    "2019ChallengeEntries/master/Sepsyd/submit-cinc2019/"
-    "f120d4e02n8010val434.pickle.dat"
-)
 ARTIFACT_DIR = PROJECT_ROOT / "artifacts" / "models" / "v1"
+PORTABLE_MODEL = ARTIFACT_DIR / "model.json"
 
 PREPROCESSOR = {
     "varmeans": [
@@ -54,26 +48,17 @@ PREPROCESSOR = {
 }
 
 
-def ensure_model_source() -> Path:
-    if ORIGINAL_MODEL.exists():
-        return ORIGINAL_MODEL
-    ORIGINAL_MODEL.parent.mkdir(parents=True, exist_ok=True)
-    print(f"Downloading model from {MODEL_URL}")
-    urllib.request.urlretrieve(MODEL_URL, ORIGINAL_MODEL)
-    return ORIGINAL_MODEL
-
-
 def main() -> None:
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     (PROJECT_ROOT / "logs" / "predictions").mkdir(parents=True, exist_ok=True)
 
-    source = ensure_model_source()
-    dest = ARTIFACT_DIR / "model.pkl"
-    shutil.copy2(source, dest)
-
-    # Verify pickle loads (requires xgboost==0.90 — see requirements.txt)
-    with open(dest, "rb") as f:
-        pickle.load(f)
+    if not PORTABLE_MODEL.is_file():
+        raise FileNotFoundError(
+            f"Portable Sepsyd model is missing: {PORTABLE_MODEL}. "
+            "Rebuild it with scripts/convert_legacy_sepsyd_model.sh."
+        )
+    booster = xgb.Booster()
+    booster.load_model(PORTABLE_MODEL)
 
     with open(ARTIFACT_DIR / "preprocessor.json", "w", encoding="utf-8") as f:
         json.dump(PREPROCESSOR, f, indent=2)
@@ -84,10 +69,11 @@ def main() -> None:
 
     manifest = {
         "model_version": "v1",
-        "model_path": "artifacts/models/v1/model.pkl",
+        "model_path": "artifacts/models/v1/model.json",
         "preprocessor_path": "artifacts/models/v1/preprocessor.json",
         "feature_config_path": "artifacts/models/v1/feature_config.json",
         "pipeline": "sepsyd",
+        "model_format": "xgboost_json",
         "dataset_version": "physionet2019",
         "threshold": 0.5,
         "status": "current",
