@@ -35,7 +35,14 @@ pip install -r requirements.txt
 python scripts/bootstrap_artifacts.py
 ```
 
-Script tải model Sepsyd gốc (nếu chưa có trong `original/`) và tạo `artifacts/models/v1/` + `artifacts/current_model.json`.
+Script xác minh model Sepsyd portable và tạo `artifacts/models/v1/` + `artifacts/current_model.json`.
+
+Model mặc định được lưu bằng XGBoost JSON để có thể chạy trên XGBoost hiện đại.
+Nếu cần dựng lại JSON từ pickle 0.90 gốc, khởi động Docker rồi chạy:
+
+```bash
+bash scripts/convert_legacy_sepsyd_model.sh
+```
 
 ### 3. Test inference offline (CLI)
 
@@ -72,8 +79,8 @@ pytest tests/ -v
 
 ## Trạng thái hiện tại
 
-- MVP prediction app với pipeline `sepsyd` (model v1 gốc).
-- Pipeline `team_v1` (model ML mới) — stub, chờ artifact v2 từ nhóm retrain.
+- MVP prediction app với pipeline `sepsyd` (model v1 gốc đã chuyển sang XGBoost JSON).
+- Pipeline `team_v1` dùng trực tiếp artifact do DAG retraining tạo.
 - Đã có nguồn dữ liệu training trên Kaggle — đang chạy `reproduce/reproduce_sepsis_baseline.ipynb` để reproduce baseline.
 
 ## Airflow retraining
@@ -87,6 +94,10 @@ Chuẩn bị asset trước khi chạy:
 3. Cài dependency bằng `pip install -r requirements.txt`, cấu hình `PYTHONPATH` trỏ tới project root rồi khởi động Airflow.
 
 DAG tạo lại train/test split theo patient ở mỗi lần retrain và lưu split metadata trong thư mục run. Sau mỗi lần retrain thành công, candidate được đăng ký và luôn thay thế model hiện tại trong `current_model.json`, không qua bước so sánh performance với model cũ.
+
+Ứng dụng và DAG dùng chung `artifacts/current_model.json`. Trước lần retrain đầu,
+manifest trỏ tới pipeline `sepsyd`; sau khi promote, DAG atomically chuyển manifest
+sang pipeline `team_v1` và giao diện tự reload ở lần dự đoán tiếp theo.
 
 ### Chạy kiểm thử
 
