@@ -41,6 +41,23 @@ class FittedPreprocessor:
         }
         return result
 
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "FittedPreprocessor":
+        age_gender_values: dict[tuple[float, float], dict[str, float]] = {}
+        for key, values in payload.get("age_gender_values", {}).items():
+            age, gender = key.split("|", maxsplit=1)
+            age_gender_values[(float(age), float(gender))] = {
+                column: float(value) for column, value in values.items()
+            }
+        return cls(
+            age_gender_values=age_gender_values,
+            log_columns=list(payload["log_columns"]),
+            means={key: float(value) for key, value in payload["means"].items()},
+            stds={key: float(value) for key, value in payload["stds"].items()},
+            fill_values={key: float(value) for key, value in payload["fill_values"].items()},
+            feature_columns=list(payload["feature_columns"]),
+        )
+
 
 def filter_absolute_outliers(df: pd.DataFrame) -> pd.DataFrame:
     return _cleaning_module().filter_absolute_outliers(df, inplace=False)
@@ -132,4 +149,3 @@ def transform_patients(
         values = pd.to_numeric(transformed[column], errors="coerce").fillna(fitted.fill_values[column])
         transformed[column] = (values - fitted.means[column]) / fitted.stds[column]
     return transformed
-

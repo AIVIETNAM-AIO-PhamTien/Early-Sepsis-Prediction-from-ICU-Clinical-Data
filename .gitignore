@@ -39,8 +39,12 @@ artifacts/runs/**
 !**/.gitkeep
 !data/incoming/README.md
 !artifacts/models/README.md
+!artifacts/models/v1/
+!artifacts/models/v1/model.json
+!artifacts/models/v1/preprocessor.json
+!artifacts/models/v1/feature_config.json
 
-# Original Sepsyd model (downloaded by scripts/bootstrap_artifacts.py)
+# Original Sepsyd model (kept only as the legacy conversion source)
 original/*.pickle.dat
 
 # Prediction logs (runtime)

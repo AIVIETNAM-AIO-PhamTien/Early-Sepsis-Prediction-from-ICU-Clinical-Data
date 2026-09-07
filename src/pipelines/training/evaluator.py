@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
 import numpy as np
 import pandas as pd
 import xgboost as xgb
@@ -18,7 +17,7 @@ from sklearn.metrics import (
 )
 
 from src.pipelines.processing.feature_builder import add_lookback
-from src.pipelines.processing.preprocessor import transform_patients
+from src.pipelines.processing.preprocessor import FittedPreprocessor, transform_patients
 from src.pipelines.training.ml_adapter import group_patient_outputs
 from src.pipelines.training.objectives import sigmoid
 from src.pipelines.training.utility import normalized_utility
@@ -49,8 +48,11 @@ def evaluate_model(
     schema: dict[str, Any],
 ) -> dict[str, Any]:
     root = Path(model_dir)
-    fitted = joblib.load(root / "preprocessor.pkl")
-    booster = joblib.load(root / "model.pkl")
+    fitted = FittedPreprocessor.from_dict(
+        json.loads((root / "preprocessor.json").read_text(encoding="utf-8"))
+    )
+    booster = xgb.Booster()
+    booster.load_model(root / "model.json")
     threshold = float(json.loads((root / "threshold.json").read_text(encoding="utf-8"))["threshold"])
     transformed = transform_patients(frame, fitted, config)
     feature_config = config["features"]

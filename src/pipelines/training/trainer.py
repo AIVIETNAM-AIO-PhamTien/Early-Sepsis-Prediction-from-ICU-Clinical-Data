@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import joblib
 import pandas as pd
 import xgboost as xgb
 
@@ -48,13 +47,18 @@ def train_final_model(
         obj=make_weighted_logloss_objective(float(config["model"]["positive_weight"])),
     )
     booster.save_model(str(destination / "model.json"))
-    joblib.dump(booster, destination / "model.pkl")
-    joblib.dump(fitted, destination / "preprocessor.pkl")
     (destination / "preprocessor.json").write_text(
         json.dumps(fitted.to_dict(), indent=2, sort_keys=True), encoding="utf-8"
     )
+    inference_config = {
+        "pipeline": "team_v1",
+        "features": feature_config,
+        "preprocessing": {
+            "impute_columns": list(config["preprocessing"]["impute_columns"]),
+        },
+    }
     (destination / "feature_config.json").write_text(
-        json.dumps(feature_config, indent=2, sort_keys=True), encoding="utf-8"
+        json.dumps(inference_config, indent=2, sort_keys=True), encoding="utf-8"
     )
     (destination / "feature_schema.json").write_text(
         json.dumps({"columns": feature_names, "n_features": len(feature_names)}, indent=2), encoding="utf-8"
@@ -75,6 +79,8 @@ def train_final_model(
         "n_features": len(feature_names),
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "status": "candidate",
+        "pipeline": "team_v1",
+        "model_format": "xgboost_json",
     }
     (destination / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     return {**metadata, "candidate_dir": str(destination), "threshold": float(cv_result["best_threshold"])}

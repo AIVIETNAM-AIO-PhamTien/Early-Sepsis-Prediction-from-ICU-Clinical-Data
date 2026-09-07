@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
-import pickle
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+import xgboost as xgb
 
 from src.shared.paths import ARTIFACTS_DIR, CURRENT_MODEL_MANIFEST, PROJECT_ROOT
 
@@ -21,8 +22,9 @@ class ModelArtifact:
     version: str
     pipeline: str
     threshold: float
+    model_format: str
     model: Any
-    preprocessor: dict
+    preprocessor: Any
     feature_config: dict
     loaded_at: datetime
     updated_at: str
@@ -55,12 +57,15 @@ class ModelLoader:
         except json.JSONDecodeError as exc:
             raise ModelLoadError(f"Invalid JSON in {path}: {exc}") from exc
 
-    def _load_model(self, path: Path) -> Any:
+    def _load_model(self, path: Path, model_format: str) -> xgb.Booster:
         if not path.exists():
             raise ModelLoadError(f"Model file not found: {path}")
+        if model_format not in {"xgboost_json", "xgboost_ubj"}:
+            raise ModelLoadError(f"Unsupported model format: {model_format}")
         try:
-            with open(path, "rb") as f:
-                return pickle.load(f)
+            booster = xgb.Booster()
+            booster.load_model(path)
+            return booster
         except Exception as exc:
             raise ModelLoadError(f"Failed to load model from {path}: {exc}") from exc
 
@@ -74,6 +79,7 @@ class ModelLoader:
             "preprocessor_path",
             "feature_config_path",
             "pipeline",
+            "model_format",
             "threshold",
             "updated_at",
         ]
@@ -101,12 +107,14 @@ class ModelLoader:
             model_path = self._resolve_path(manifest["model_path"])
             preprocessor_path = self._resolve_path(manifest["preprocessor_path"])
             feature_config_path = self._resolve_path(manifest["feature_config_path"])
+            model_format = manifest["model_format"]
 
             artifact = ModelArtifact(
                 version=manifest["model_version"],
                 pipeline=manifest["pipeline"],
                 threshold=float(manifest["threshold"]),
-                model=self._load_model(model_path),
+                model_format=model_format,
+                model=self._load_model(model_path, model_format),
                 preprocessor=self._load_json(preprocessor_path),
                 feature_config=self._load_json(feature_config_path),
                 loaded_at=datetime.now(),
