@@ -1,8 +1,12 @@
 .venv
 .streamlit/secrets.toml
 
+.DS_Store
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.airflow/
+.airflow3/
 
 .claude/
 .mcp.json
@@ -18,13 +22,27 @@ data/raw/**/*
 !data/raw/training_setA/p000003.psv
 !data/raw/training_setB/
 !data/raw/training_setB/p100001.psv
+!data/raw/README.md
+
+# Local data and generated artifacts
 data/processed/
-data/bronze/
-data/silver/
-data/gold/
+data/incoming/**
+data/bronze/**
+data/silver/**
+data/gold/**
+data/quarantine/**
+data/registry/**
+artifacts/models/**
+artifacts/runs/**
+
+# Keep directory instructions/placeholders
+!**/.gitkeep
+!data/incoming/README.md
+!artifacts/models/README.md
 
 # Original Sepsyd model (downloaded by scripts/bootstrap_artifacts.py)
 original/*.pickle.dat
 
 # Prediction logs (runtime)
+logs/*.jsonl
 logs/predictions/*.jsonl
