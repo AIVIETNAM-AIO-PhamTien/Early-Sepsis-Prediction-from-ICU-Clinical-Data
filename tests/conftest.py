@@ -1,19 +1,33 @@
+"""Pytest configuration and shared fixtures."""
+
 from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # Airflow configures logging during import. Keeping AIRFLOW_HOME inside the
 # ignored project runtime directory makes DAG import tests deterministic.
 os.environ.setdefault("AIRFLOW_HOME", str(PROJECT_ROOT / ".airflow"))
 os.environ.setdefault("AIRFLOW__CORE__LOAD_EXAMPLES", "False")
+
+from src.inference.io import read_patient_file
+
+FIXTURE_PATH = Path(__file__).parent / "fixtures" / "sample_patient.psv"
+
+
+@pytest.fixture(scope="session")
+def sample_patient_df() -> pd.DataFrame:
+    df, _ = read_patient_file(FIXTURE_PATH)
+    return df
 
 
 @pytest.fixture
@@ -37,4 +51,3 @@ def valid_silver_frame(schema: dict) -> pd.DataFrame:
             )
             rows.append(row)
     return pd.DataFrame(rows)
-

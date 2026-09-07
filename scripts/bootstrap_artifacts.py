@@ -1,0 +1,103 @@
+"""Bootstrap model artifacts from original Sepsyd source."""
+
+from __future__ import annotations
+
+import json
+import pickle
+import shutil
+import urllib.request
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+ORIGINAL_MODEL = PROJECT_ROOT / "original" / "f120d4e02n8010val434.pickle.dat"
+MODEL_URL = (
+    "https://raw.githubusercontent.com/physionetchallenges/"
+    "2019ChallengeEntries/master/Sepsyd/submit-cinc2019/"
+    "f120d4e02n8010val434.pickle.dat"
+)
+ARTIFACT_DIR = PROJECT_ROOT / "artifacts" / "models" / "v1"
+
+PREPROCESSOR = {
+    "varmeans": [
+        84.58144338298742, 97.19395453339598, 36.977228240795384, 123.75046539637763,
+        82.40009988667639, 63.83055577034239, 18.72649785557987, 32.95765667291276,
+        -0.6899191871174756, 24.075480562219358, 0.5548386348703284, 7.37893402619616,
+        41.02186880800917, 92.65418774854838, 260.22338482309493, 23.91545210569777,
+        102.48366144100076, 7.557530849328269, 105.82790991400108, 1.5106993531749389,
+        1.8361772575250843, 136.9322832898959, 2.646666023259181, 2.05145021490337,
+        3.544237652686153, 4.135527970939283, 2.114059461561731, 8.290099451999183,
+        30.79409334002751, 10.43083278791528, 41.231193461563706, 11.446405019759258,
+        287.38570591681315, 196.01391078961922, 62.00946887985519, 0.5592690422043409,
+        0.49657112470087744, 0.5034288752991226, -56.12512176894499, 26.994992301299437,
+    ],
+    "varstds": [
+        17.3252, 2.9369, 0.77, 23.2316, 16.3418, 13.956, 5.0982, 7.9517, 4.2943, 4.3765,
+        11.1232, 0.0746, 9.2672, 10.893, 855.7468, 19.9943, 120.1227, 2.4332, 5.8805, 1.8056,
+        3.6941, 51.3107, 2.5262, 0.3979, 1.4233, 0.6421, 4.3115, 24.8062, 5.4917, 1.9687,
+        26.2177, 7.731, 153.0029, 103.6354, 16.3862, 0.4965, 0.5, 0.5, 162.2569, 29.0054,
+    ],
+    "varlogmeans": [
+        4.4166, 4.576, 3.6101, 4.8009, 4.3928, 4.1334, 2.8926, 3.4633, 0.1, 0.1, 0.1, 1.9986,
+        3.6911, 4.5201, 4.104, 2.92, 4.3874, 1.9011, 4.6602, 0.1002, -0.5519, 4.8652, 0.7091,
+        0.7016, 1.1922, 1.4085, 0.0335, -0.8605, 3.4115, 2.327, 3.6051, 2.3098, 5.5347, 5.1412,
+        4.0841, 0.1, 0.1, 0.1, 0.1, 2.8862,
+    ],
+    "varlogstds": [
+        0.2069, 0.0338, 0.0209, 0.1862, 0.1929, 0.2133, 0.2811, 0.2632, 0.1, 0.1, 0.1, 0.0102,
+        0.2117, 0.1413, 1.3713, 0.6972, 0.6114, 0.6183, 0.0564, 0.6841, 1.4805, 0.3181, 0.6703,
+        0.1821, 0.3854, 0.1478, 1.0199, 2.723, 0.1788, 0.1896, 0.425, 0.5176, 0.5046, 0.5522,
+        0.3135, 0.1, 0.1, 0.1, 0.1, 0.9707,
+    ],
+    "log_transform_indices": [14, 15, 16, 19, 20, 22, 25, 26, 27, 30, 31, 32],
+    "n_preprocess_cols": 39,
+    "lookback_hours": 5,
+}
+
+
+def ensure_model_source() -> Path:
+    if ORIGINAL_MODEL.exists():
+        return ORIGINAL_MODEL
+    ORIGINAL_MODEL.parent.mkdir(parents=True, exist_ok=True)
+    print(f"Downloading model from {MODEL_URL}")
+    urllib.request.urlretrieve(MODEL_URL, ORIGINAL_MODEL)
+    return ORIGINAL_MODEL
+
+
+def main() -> None:
+    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+    (PROJECT_ROOT / "logs" / "predictions").mkdir(parents=True, exist_ok=True)
+
+    source = ensure_model_source()
+    dest = ARTIFACT_DIR / "model.pkl"
+    shutil.copy2(source, dest)
+
+    # Verify pickle loads (requires xgboost==0.90 — see requirements.txt)
+    with open(dest, "rb") as f:
+        pickle.load(f)
+
+    with open(ARTIFACT_DIR / "preprocessor.json", "w", encoding="utf-8") as f:
+        json.dump(PREPROCESSOR, f, indent=2)
+
+    feature_config = {"pipeline": "sepsyd", "threshold": 0.5, "lookback_hours": 5}
+    with open(ARTIFACT_DIR / "feature_config.json", "w", encoding="utf-8") as f:
+        json.dump(feature_config, f, indent=2)
+
+    manifest = {
+        "model_version": "v1",
+        "model_path": "artifacts/models/v1/model.pkl",
+        "preprocessor_path": "artifacts/models/v1/preprocessor.json",
+        "feature_config_path": "artifacts/models/v1/feature_config.json",
+        "pipeline": "sepsyd",
+        "dataset_version": "physionet2019",
+        "threshold": 0.5,
+        "status": "current",
+        "updated_at": "2026-08-30T10:00:00",
+    }
+    with open(PROJECT_ROOT / "artifacts" / "current_model.json", "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    print("Artifacts bootstrapped successfully.")
+
+
+if __name__ == "__main__":
+    main()

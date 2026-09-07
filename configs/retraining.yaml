@@ -58,7 +58,7 @@ threshold:
 
 model_registry:
   root_dir: "artifacts/models"
-  current_model_file: "artifacts/models/current_model.json"
+  current_model_file: "artifacts/current_model.json"
   runs_dir: "artifacts/runs"
 
 logging:

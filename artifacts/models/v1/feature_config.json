@@ -1,0 +1,5 @@
+{
+  "pipeline": "sepsyd",
+  "threshold": 0.5,
+  "lookback_hours": 5
+}

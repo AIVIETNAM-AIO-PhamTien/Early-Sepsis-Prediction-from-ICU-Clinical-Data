@@ -1,10 +1,11 @@
-numpy
+numpy<2
 pandas
 scikit-learn
-xgboost
+xgboost==0.90
 lightgbm
 requests
 matplotlib
+streamlit
 apache-airflow>=3.2,<3.3
 PyYAML>=6.0
 pyarrow>=15.0

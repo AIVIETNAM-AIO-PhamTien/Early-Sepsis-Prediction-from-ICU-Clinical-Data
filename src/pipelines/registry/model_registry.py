@@ -51,6 +51,7 @@ def promote_model(
     current_model_file: str | Path,
     dataset_version: str,
     threshold: float,
+    pipeline: str = "team_v1",
 ) -> Path:
     model_path = Path(model_dir)
     _validate_artifacts(model_path)
@@ -60,8 +61,9 @@ def promote_model(
         "model_version": model_path.name,
         "dataset_version": dataset_version,
         "model_path": str(model_path / "model.pkl"),
-        "preprocessor_path": str(model_path / "preprocessor.pkl"),
+        "preprocessor_path": str(model_path / "preprocessor.json"),
         "feature_config_path": str(model_path / "feature_config.json"),
+        "pipeline": pipeline,
         "threshold": float(threshold),
         "status": "current",
         "updated_at": datetime.now(timezone.utc).isoformat(),

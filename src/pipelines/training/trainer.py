@@ -47,7 +47,7 @@ def train_final_model(
         num_boost_round=int(cv_result["mean_best_iteration"]),
         obj=make_weighted_logloss_objective(float(config["model"]["positive_weight"])),
     )
-    booster.save_model(destination / "model.json")
+    booster.save_model(str(destination / "model.json"))
     joblib.dump(booster, destination / "model.pkl")
     joblib.dump(fitted, destination / "preprocessor.pkl")
     (destination / "preprocessor.json").write_text(
