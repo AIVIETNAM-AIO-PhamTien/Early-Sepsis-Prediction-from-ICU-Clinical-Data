@@ -13,7 +13,7 @@ docker run --rm --platform linux/amd64 \
    apt-get install -y --no-install-recommends libgomp1 >/dev/null && \
    pip install --no-cache-dir -q 'numpy<1.22' 'scipy<1.8' 'xgboost==0.90' && \
    python /workspace/scripts/convert_legacy_sepsyd_model.py \
-     /workspace/original/f120d4e02n8010val434.pickle.dat /output/model.bin"
+     /workspace/vendor/sepsyd_original/f120d4e02n8010val434.pickle.dat /output/model.bin"
 
 docker run --rm --platform linux/amd64 \
   -v "${conversion_dir}:/output" \

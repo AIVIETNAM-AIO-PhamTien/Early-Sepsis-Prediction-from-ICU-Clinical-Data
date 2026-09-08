@@ -1,6 +1,6 @@
 # Raw bootstrap data
 
-Đặt toàn bộ dữ liệu PhysioNet/CinC 2019 trực tiếp tại đây:
+Đặt dữ liệu PhysioNet/CinC 2019 vào đây, ví dụ:
 
 ```text
 data/raw/
@@ -11,10 +11,11 @@ data/raw/
 └── p100002.psv
 ```
 
-Pipeline coi tất cả file là một cohort thống nhất; không chia Set A/B và không cần thư mục con. Thư mục này dùng để tạo fixed test split và đánh giá candidate/current model. Không commit dữ liệu lên Git.
+Chấp nhận cả cấu trúc phẳng lẫn lồng thư mục theo Set A/B (`training_setA/`, `training_setB/`) — các notebook
+đọc dữ liệu ở đây (`notebooks/eda_v2_pipeline_aligned.ipynb`) dùng `rglob("*.psv")` nên tự tìm được file dù có
+lồng thư mục.
 
-Sau khi thêm dữ liệu và cài dependency, tạo split đúng một lần:
+Pipeline retraining production (Airflow DAG) **không đọc trực tiếp thư mục này** — DAG đọc batch mới từ
+`data/incoming/`. `data/raw/` chỉ phục vụ EDA và các notebook reproduce baseline.
 
-```bash
-python -m scripts.bootstrap_splits
-```
+Không commit dữ liệu thô lên Git.

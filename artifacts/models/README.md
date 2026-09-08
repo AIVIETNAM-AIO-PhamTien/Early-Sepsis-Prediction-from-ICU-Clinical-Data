@@ -1,6 +1,8 @@
 # Model bootstrap directory
 
 Sau lần chạy DAG retraining thành công, model production được lưu trong một thư mục version, ví dụ:
+Cấu trúc đầy đủ bên dưới **chỉ được tạo ra sau khi có ít nhất 1 lần retrain qua DAG** — trước đó (bootstrap),
+thư mục chỉ có `model.json`, `preprocessor.json`, `feature_config.json`.
 
 ```text
 artifacts/

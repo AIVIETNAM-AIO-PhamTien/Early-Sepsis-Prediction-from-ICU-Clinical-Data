@@ -7,10 +7,6 @@ requests
 matplotlib
 streamlit
 apache-airflow==3.2.2
-cadwyn==6.2.2
-fastapi==0.136.1
-starlette==1.1.0
-svcs==25.1.0
 PyYAML>=6.0
 pyarrow>=15.0
 joblib>=1.3
