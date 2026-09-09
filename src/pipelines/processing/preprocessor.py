@@ -1,27 +1,13 @@
 from __future__ import annotations
 
-import importlib.util
 from dataclasses import asdict, dataclass
-from functools import lru_cache
-from types import ModuleType
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from src.pipelines.config import PROJECT_ROOT
+from src.pipelines.processing import cleaning
 from src.pipelines.processing.feature_builder import engineer_patient_features, model_feature_columns
-
-
-@lru_cache(maxsize=1)
-def _cleaning_module() -> ModuleType:
-    module_path = PROJECT_ROOT / "data" / "cleaning.py"
-    spec = importlib.util.spec_from_file_location("project_cleaning", module_path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Cannot load cleaning helpers from {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 
 @dataclass
@@ -60,7 +46,7 @@ class FittedPreprocessor:
 
 
 def filter_absolute_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    return _cleaning_module().filter_absolute_outliers(df, inplace=False)
+    return cleaning.filter_absolute_outliers(df, inplace=False)
 
 
 def _clean_with_fitted_values(
@@ -68,7 +54,7 @@ def _clean_with_fitted_values(
     fitted_values: dict[tuple[float, float], dict[str, float]],
     impute_columns: list[str],
 ) -> pd.DataFrame:
-    return _cleaning_module().forward_fill_impute(
+    return cleaning.forward_fill_impute(
         df,
         columns=impute_columns,
         patient_col="patient_id",
@@ -102,7 +88,7 @@ def fit_preprocessor(
     frozen_log_columns: list[str] | None = None,
 ) -> FittedPreprocessor:
     impute_columns = list(config["preprocessing"]["impute_columns"])
-    fitted_age_gender = _cleaning_module().fit_age_gender_normal_values(
+    fitted_age_gender = cleaning.fit_age_gender_normal_values(
         train_df,
         columns=impute_columns,
         patient_col="patient_id",

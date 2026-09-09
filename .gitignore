@@ -7,6 +7,7 @@ __pycache__/
 .pytest_cache/
 .airflow/
 .airflow3/
+*.egg-info/
 
 .claude/
 .mcp.json
@@ -45,7 +46,7 @@ artifacts/runs/**
 !artifacts/models/v1/feature_config.json
 
 # Original Sepsyd model (kept only as the legacy conversion source)
-original/*.pickle.dat
+vendor/sepsyd_original/*.pickle.dat
 
 # Prediction logs (runtime)
 logs/*.jsonl

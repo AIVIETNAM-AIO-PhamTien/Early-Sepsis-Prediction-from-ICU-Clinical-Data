@@ -12,7 +12,7 @@ Sample `.psv` files used for the Streamlit app demo and inference tests.
 
 Each file: **1 patient**, **1 row = 1 ICU hour**, delimiter `|`.
 
-41 columns: 40 clinical variables + `SepsisLabel`. See details in [`DATASET_OVERVIEW.md`](../../DATASET_OVERVIEW.md).
+41 columns: 40 clinical variables + `SepsisLabel`. See details in [`DATASET_OVERVIEW.md`](../../docs/DATASET_OVERVIEW.md).
 
 `patient_id` = filename (not a column), e.g. `p000001.psv` → `p000001`.
 

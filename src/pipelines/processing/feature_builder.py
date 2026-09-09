@@ -1,31 +1,16 @@
 from __future__ import annotations
 
-import importlib.util
-from functools import lru_cache
-from pathlib import Path
-from types import ModuleType
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-from src.pipelines.config import PROJECT_ROOT
-
-
-@lru_cache(maxsize=1)
-def _feature_module() -> ModuleType:
-    module_path = PROJECT_ROOT / "data" / "feature-engineering.py"
-    spec = importlib.util.spec_from_file_location("project_feature_engineering", module_path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Cannot load feature helpers from {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+from src.pipelines.processing import feature_engineering
 
 
 def engineer_patient_features(df: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
     feature_config = config["features"]
-    return _feature_module().add_all_feature_engineering(
+    return feature_engineering.add_all_feature_engineering(
         df,
         columns=feature_config["columns"],
         window_size=int(feature_config["moving_window_hours"]),
