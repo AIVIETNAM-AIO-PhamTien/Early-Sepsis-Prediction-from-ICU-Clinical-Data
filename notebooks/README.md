@@ -5,9 +5,11 @@ từng giai đoạn của quá trình đó, không phải là sản phẩm cuố
 
 ## Hiện hành
 
-- **`eda_v2_pipeline_aligned.ipynb`** — EDA hiện dùng, đi theo mạch "phát hiện vấn đề → chỉ ra đúng hàm/ngưỡng
-  trong pipeline preprocess hiện tại (`src/pipelines/processing/`) đã xử lý vấn đề đó". Chạy được trực tiếp trên
-  dữ liệu thật trong `data/raw/`.
+- **`eda_v2_pipeline_aligned.ipynb`** — EDA hiện dùng, đi theo mạch "phát hiện đặc điểm dữ liệu → chỉ ra đúng lý
+  do preprocessing trong `archive/reproduce-xai.ipynb`/`archive/model-comparison.ipynb` (bản tái lập cấu hình
+  "Sepsyd best config", H=5, Base+Mask, dùng để chạy TreeSHAP) được thiết kế như vậy". Mỗi mục có phân tích
+  "vì sao" ngay dưới biểu đồ của chính mục đó. Chạy được trực tiếp trên toàn bộ dữ liệu thật trong `data/raw/`
+  (không lấy mẫu con).
 
 ## `reproduction/`
 
