@@ -149,7 +149,6 @@ thật trong repo này; còn vài dependency/test chưa dọn xong. Danh sách �
 | Leader | Mục 1, 2, 4, 8, 9; review toàn bộ | Scope, architecture, risk register, release plan, tích hợp các nhánh | Các thuật ngữ/metric/version nhất quán; không merge khi gate fail |
 | Data | Mục 3.1 | Data contract, ingestion, EDA, split manifest, preprocessing/feature package | Schema + leakage tests pass; data card và snapshot hash đầy đủ |
 | Model | Mục 3.2 và phần model trong Mục 5 | Baseline, XGBoost, tuning, calibration, threshold, SHAP, model card | Reproducible run; evaluation artifact; không chạm test trước khi freeze |
-| Prediction UI | Mục 6.1 | FastAPI contract, Streamlit UI, timeline/explanation, error handling, audit hooks | Contract/UI tests pass; demo đủ valid/invalid/low-quality cases |
-| Retrain | Mục 6.2 | Monitoring, retrain orchestration, registry, champion–candidate gate, canary/rollback | Dry-run và rollback drill pass; artifact/version lineage đầy đủ |
-| Testing | Mục 7 và phần đánh giá độc lập trong Mục 5 | Test plan, test automation, UAT, load/security, slice/error analysis, release report | 100% critical tests pass; không có severity-1/2 issue mở |
+| QA/QC | Mục 6.1, 7 | Streamlit UI, timeline/explanation, error handling, audit hooks | Contract/UI tests pass; demo đủ valid/invalid/low-quality cases |
+| Pipeline | Mục 6.2 | Monitoring, retrain orchestration, registry, champion–candidate gate, canary/rollback | Dry-run và rollback drill pass; artifact/version lineage đầy đủ |
 | Cả nhóm | Review chéo và demo | README, video, presentation, incident drill | Hai người review mỗi PR có ảnh hưởng data/model/safety |
