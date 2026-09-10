@@ -64,7 +64,7 @@ class ModelLoader:
             raise ModelLoadError(f"Unsupported model format: {model_format}")
         try:
             booster = xgb.Booster()
-            booster.load_model(path)
+            booster.load_model(str(path))
             return booster
         except Exception as exc:
             raise ModelLoadError(f"Failed to load model from {path}: {exc}") from exc

@@ -101,7 +101,7 @@ python -m src.inference.cli --input app/sample_data/p000001.psv --output out.csv
 streamlit run app/streamlit_app.py
 ```
 
-Upload file `.psv` / `.csv`, hoặc chọn file mẫu trong `app/sample_data/`, rồi nhấn **Run Prediction**.
+Upload file `.psv`/`.csv`, hoặc chọn file mẫu trong `app/sample_data/`, rồi nhấn **Run Prediction**.
 
 Sau khi predict xong, app tự gọi LLM (Gemini free tier) để diễn giải kết quả bằng tiếng Việt. Cấu hình key một
 lần trong `.streamlit/secrets.toml`:
@@ -137,6 +137,21 @@ pytest tests/ -v
 - [`docs/PRODUCTION_STRUCTURE_PROPOSAL.md`](docs/PRODUCTION_STRUCTURE_PROPOSAL.md) — hồ sơ đề xuất/thực thi tái cấu trúc thư mục.
 - [`notebooks/README.md`](notebooks/README.md) — notebook nào hiện hành, notebook nào archive/reproduction.
 
+Ứng dụng và DAG dùng chung `artifacts/current_model.json`. Trước lần retrain đầu, manifest trỏ tới pipeline `sepsyd`; sau khi promote, DAG atomically chuyển manifest sang pipeline `team_v1` và giao diện tự reload ở lần dự đoán tiếp theo.
+
+</details>
+
+<details>
+<summary><strong>Testing</strong></summary>
+
+```bash
+python -m pip install -r requirements.txt
+pytest tests/ -v
+```
+
+Test suite kiểm tra DAG import/topology trên Airflow 3, batch detection và Bronze ingestion, data quality gate, lookback theo từng bệnh nhân, performance gate, dataset registry và model promotion. Test không chạy huấn luyện XGBoost hoàn chỉnh nên có thể chạy nhanh trong quá trình phát triển.
+
+</details>
 ## Hạn chế hiện tại
 
 DAG retraining chưa so sánh candidate với model cũ trước khi promote; pipeline `team_v1` chưa từng chạy retrain
