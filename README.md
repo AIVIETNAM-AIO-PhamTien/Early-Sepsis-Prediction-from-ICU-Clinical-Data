@@ -6,7 +6,11 @@
 ![Streamlit](https://img.shields.io/badge/streamlit-app-ff4b4b)
 ![XGBoost](https://img.shields.io/badge/model-XGBoost-informational)
 
-![Demo](assets/demo.gif)
+<p align="center">
+  <a href="https://youtu.be/VaMVOEhL26Y">
+    <img src="https://img.youtube.com/vi/VaMVOEhL26Y/maxresdefault.jpg" width="720" alt="Demo video">
+  </a>
+</p>
 
 ## Tính năng chính
 
@@ -91,17 +95,6 @@ DAG tạo lại train/test split theo patient ở mỗi lần retrain và lưu s
 python -m pip install -r requirements.txt
 pytest tests/ -v
 ```
-
-## Phân công thực hiện
-
-| Vị trí | Phụ trách báo cáo | Deliverable kỹ thuật | Definition of Done |
-|---|---|---|---|
-| Leader | Mục 1, 2, 4, 8, 9; review toàn bộ | Scope, architecture, risk register, release plan, tích hợp các nhánh | Các thuật ngữ/metric/version nhất quán; không merge khi gate fail |
-| Data | Mục 3.1 | Data contract, ingestion, EDA, split manifest, preprocessing/feature package | Schema + leakage tests pass; data card và snapshot hash đầy đủ |
-| Model | Mục 3.2 và phần model trong Mục 5 | Baseline, XGBoost, tuning, calibration, threshold, SHAP, model card | Reproducible run; evaluation artifact; không chạm test trước khi freeze |
-| QA/QC | Mục 6.1, 7 | Streamlit UI, timeline/explanation, error handling, audit hooks | Contract/UI tests pass; demo đủ valid/invalid/low-quality cases |
-| Pipeline | Mục 6.2 | Monitoring, retrain orchestration, registry, champion–candidate gate, canary/rollback | Dry-run và rollback drill pass; artifact/version lineage đầy đủ |
-| Cả nhóm | Review chéo và demo | README, video, presentation, incident drill | Hai người review mỗi PR có ảnh hưởng data/model/safety |
 
 Test suite kiểm tra DAG import/topology trên Airflow 3, batch detection và Bronze ingestion, data quality gate, lookback theo từng bệnh nhân, performance gate, dataset registry và model promotion. Test không chạy huấn luyện XGBoost hoàn chỉnh nên có thể chạy nhanh trong quá trình phát triển.
 
