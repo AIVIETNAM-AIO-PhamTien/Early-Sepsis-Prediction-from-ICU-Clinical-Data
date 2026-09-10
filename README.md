@@ -1,8 +1,60 @@
 # AIO-Microwave-Sepsis
 
-Reproduce baseline từ paper "Automated Prediction of Sepsis Onset Using Gradient Boosted Decision Trees" (team Sepsyd, CinC 2019) — dự đoán sớm sepsis từ dữ liệu lâm sàng ICU, PhysioNet/CinC Challenge 2019.
+> Dự án: Dự đoán sớm sepsis từ dữ liệu lâm sàng ICU.
 
-## Hiện trạng project
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Streamlit](https://img.shields.io/badge/streamlit-app-ff4b4b)
+![XGBoost](https://img.shields.io/badge/model-XGBoost-informational)
+
+![Demo](assets/demo.gif)
+
+## Tính năng chính
+
+- **Streamlit app**: upload `.psv`/`.csv`, dự đoán nguy cơ sepsis theo thời gian thực.
+- **Tường thuật LLM tự động**: sau khi predict, app tự gọi Gemini để diễn giải kết quả bằng tiếng Việt.
+- **Model gốc Sepsyd** đã chuyển từ pickle XGBoost 0.90 sang XGBoost JSON portable, chạy được trên XGBoost hiện đại.
+- **Airflow retraining pipeline**: tự động train, đánh giá và promote model mới (pipeline `team_v1`) mà không cần sửa code app.
+- **Đang reproduce baseline** theo đúng mô tả thuật toán trong paper gốc (xem `reproduce/`).
+
+## Quickstart
+
+```bash
+pip install -r requirements.txt
+python scripts/bootstrap_artifacts.py   # tạo artifacts/models/v1 + current_model.json
+streamlit run app/streamlit_app.py
+```
+
+Upload file `.psv`/`.csv`, hoặc chọn file mẫu trong `app/sample_data/`, rồi nhấn **Run Prediction**.
+
+![Kết quả dự đoán](assets/prediction-result.png)
+
+### Tường thuật LLM
+
+Cấu hình key một lần trong `.streamlit/secrets.toml`:
+
+```toml
+GEMINI_API_KEY = "your-key"   # https://aistudio.google.com/apikey
+```
+
+Không có key hợp lệ → tự dùng template nội bộ, không cần cấu hình gì thêm trên UI. LLM trả lời bằng **tiếng Anh**.
+
+![Tường thuật LLM](assets/llm-narrative.png)
+
+## Dataset
+
+Dữ liệu training (PhysioNet/CinC Challenge 2019) đóng gói sẵn trên Kaggle:
+**https://www.kaggle.com/datasets/nguyenhoangthaotrinh/sepsyd-data**
+
+Chi tiết features, format file, cách chấm utility score: [`DATASET_OVERVIEW.md`](DATASET_OVERVIEW.md).
+
+## Trạng thái hiện tại
+
+- MVP prediction app với pipeline `sepsyd` (model v1 gốc đã chuyển sang XGBoost JSON).
+- Pipeline `team_v1` dùng trực tiếp artifact do DAG retraining tạo.
+- Đã có nguồn dữ liệu training trên Kaggle — đang chạy `reproduce/reproduce_sepsis_baseline.ipynb` để reproduce baseline.
+
+<details>
+<summary><strong>Cấu trúc project</strong></summary>
 
 - **`original/`** — mã nguồn **inference gốc của chính tác giả** (team Sepsyd), tải từ repo chính thức `physionetchallenges/2019ChallengeEntries`. Gồm `get_sepsis_score.py` (thuật toán inference), model XGBoost đã train sẵn (`f120d4e02n8010val434.pickle.dat`), `driver.py`, paper gốc kèm theo. Lưu ý: đây **chỉ có code inference, không có code training** — tác giả không công khai phần này.
 - **`app/`** — Streamlit UI upload + dự đoán sepsis (MVP).
@@ -13,77 +65,10 @@ Reproduce baseline từ paper "Automated Prediction of Sepsis Onset Using Gradie
 - **`DATASET_OVERVIEW.md`** — tài liệu mô tả dataset PhysioNet Challenge 2019.
 - **`requirements.txt`** — dependency cho reproduce + app (numpy, pandas, scikit-learn, xgboost, streamlit, pytest).
 
-## Dataset
+</details>
 
-Dữ liệu training (PhysioNet/CinC Challenge 2019) được đóng gói sẵn trên Kaggle:
-
-**https://www.kaggle.com/datasets/nguyenhoangthaotrinh/sepsyd-data**
-
-Xem chi tiết mô tả features, format file, và cách chấm điểm utility score trong [`DATASET_OVERVIEW.md`](DATASET_OVERVIEW.md).
-
-## Chạy ứng dụng dự đoán
-
-### 1. Cài dependency
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Bootstrap model artifacts (lần đầu)
-
-```bash
-python scripts/bootstrap_artifacts.py
-```
-
-Script xác minh model Sepsyd portable và tạo `artifacts/models/v1/` + `artifacts/current_model.json`.
-
-Model mặc định được lưu bằng XGBoost JSON để có thể chạy trên XGBoost hiện đại.
-Nếu cần dựng lại JSON từ pickle 0.90 gốc, khởi động Docker rồi chạy:
-
-```bash
-bash scripts/convert_legacy_sepsyd_model.sh
-```
-
-### 3. Test inference offline (CLI)
-
-```bash
-python -m src.inference.cli --input app/sample_data/p000001.psv
-python -m src.inference.cli --input app/sample_data/p000001.psv --output out.csv
-```
-
-### 4. Chạy Streamlit UI
-
-```bash
-streamlit run app/streamlit_app.py
-```
-
-Upload file `.psv` / `.csv`, hoặc chọn file mẫu trong `app/sample_data/`, rồi nhấn **Run Prediction**.
-
-### Tường thuật LLM (tự động sau khi predict)
-
-Sau khi predict xong, app **tự gọi LLM** (Gemini free tier) để diễn giải kết quả bằng tiếng Việt.
-
-Cấu hình key một lần trong `.streamlit/secrets.toml`:
-
-```toml
-GEMINI_API_KEY = "your-key"   # https://aistudio.google.com/apikey
-```
-
-Không có key hợp lệ → tự dùng template nội bộ. Không cần cấu hình gì trên UI.
-
-### 5. Chạy test
-
-```bash
-pytest tests/ -v
-```
-
-## Trạng thái hiện tại
-
-- MVP prediction app với pipeline `sepsyd` (model v1 gốc đã chuyển sang XGBoost JSON).
-- Pipeline `team_v1` dùng trực tiếp artifact do DAG retraining tạo.
-- Đã có nguồn dữ liệu training trên Kaggle — đang chạy `reproduce/reproduce_sepsis_baseline.ipynb` để reproduce baseline.
-
-## Airflow retraining
+<details>
+<summary><strong>Airflow retraining</strong></summary>
 
 Khung retraining production nằm trong `src/pipelines/`, DAG tại `dags/sepsis_retraining_dag.py` và cấu hình tại `configs/retraining.yaml`.
 
@@ -95,15 +80,18 @@ Chuẩn bị asset trước khi chạy:
 
 DAG tạo lại train/test split theo patient ở mỗi lần retrain và lưu split metadata trong thư mục run. Sau mỗi lần retrain thành công, candidate được đăng ký và luôn thay thế model hiện tại trong `current_model.json`, không qua bước so sánh performance với model cũ.
 
-Ứng dụng và DAG dùng chung `artifacts/current_model.json`. Trước lần retrain đầu,
-manifest trỏ tới pipeline `sepsyd`; sau khi promote, DAG atomically chuyển manifest
-sang pipeline `team_v1` và giao diện tự reload ở lần dự đoán tiếp theo.
+Ứng dụng và DAG dùng chung `artifacts/current_model.json`. Trước lần retrain đầu, manifest trỏ tới pipeline `sepsyd`; sau khi promote, DAG atomically chuyển manifest sang pipeline `team_v1` và giao diện tự reload ở lần dự đoán tiếp theo.
 
-### Chạy kiểm thử
+</details>
+
+<details>
+<summary><strong>Testing</strong></summary>
 
 ```bash
 python -m pip install -r requirements.txt
-pytest
+pytest tests/ -v
 ```
 
 Test suite kiểm tra DAG import/topology trên Airflow 3, batch detection và Bronze ingestion, data quality gate, lookback theo từng bệnh nhân, performance gate, dataset registry và model promotion. Test không chạy huấn luyện XGBoost hoàn chỉnh nên có thể chạy nhanh trong quá trình phát triển.
+
+</details>
