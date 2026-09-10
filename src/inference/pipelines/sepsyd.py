@@ -1,4 +1,4 @@
-"""Sepsyd pipeline - port of original/get_sepsis_score.py."""
+"""Sepsyd pipeline - port of vendor/sepsyd_original/get_sepsis_score.py."""
 
 from __future__ import annotations
 
